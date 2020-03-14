@@ -1,3 +1,8 @@
+# TODO
+
+- [ ] Adding Grid Search
+- [ ] Converting into OpenAI Gym style
+
 # Concrete example
 
 TBA
