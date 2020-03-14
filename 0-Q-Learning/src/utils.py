@@ -1,4 +1,3 @@
-
 class Enum:
     def __init__(self, items: list):
         self._items = items
