@@ -141,7 +141,7 @@ if __name__ == "__main__":
     print('Score over time:', (sum(Gs) / n_episodes))
     show_list('Score over time', Gs)
 
-    # show Q-Table    
+    # show Q-Table
     print('Final Q-Table driven by NN:')
     pprint(np.round(agents[0].get_Q_table(), 3))  # rounds
 
