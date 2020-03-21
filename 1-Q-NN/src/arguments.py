@@ -7,7 +7,7 @@ def parser():
     #                     const=sum, default=max,
     #                     help='sum the integers (default: find the max)')
 
-    parser.add_argument('--lr', metavar='L', type=float, default=0.8,
+    parser.add_argument('--lr', metavar='L', type=float, default=0.001,
                         help='learning rate')
     parser.add_argument('--y', metavar='Y', type=float, default=0.95,
                         help='discount factor')

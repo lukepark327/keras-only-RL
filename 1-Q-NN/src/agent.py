@@ -1,3 +1,6 @@
+from keras.layers import Dense, Input
+from keras.models import Model
+from keras.optimizers import Adam
 import numpy as np
 import random
 
@@ -17,7 +20,7 @@ print("> Setting:", args)
 class Agent:
     def __init__(self, n_actions, world_size):
         self.n_actions = n_actions
-        self.Q_table = np.zeros([world_size, self.n_actions])
+        self.world_size = world_size
         self.size = int(np.sqrt(world_size))
 
         self.lr = lr
@@ -27,8 +30,30 @@ class Agent:
         self._noise = 1.0
         self.noise = self._noise
 
+        n_inputs = world_size
+        n_outputs = self.n_actions
+        self.Q_NN = self._build_model(n_inputs, n_outputs)
+        self.Q_NN.compile(loss='mse', optimizer=Adam(lr=self.lr))
+        # TODO: save_weights
+        # TODO: load_weights
+
+    def _build_model(self, n_inputs, n_outputs):
+        inputs = Input(shape=(n_inputs, ), name='state')
+        x = Dense(256, activation='relu')(inputs)
+        x = Dense(256, activation='relu')(x)
+        x = Dense(256, activation='relu')(x)
+        x = Dense(n_outputs, activation='linear', name='action')(x)
+        Q_model = Model(inputs, x)
+        # Q_model.summary()
+        return Q_model
+
     def _flatten(self, cord):
         return cord[0] * self.size + cord[1]
+
+    def _one_hot_encoded(self, cord):
+        encoded = np.zeros(self.world_size)
+        encoded[self._flatten(cord)] = 1.0
+        return encoded.reshape([1, self.world_size])
 
     def _decaying(self, episode_num):
         self.e = self._e0 ** episode_num
@@ -43,7 +68,7 @@ class Agent:
             # choose an action randomly (epsilon)
             action = random.randint(0, self.n_actions - 1)
         else:
-            q = self.Q_table[self._flatten(state)]
+            q = self.Q_NN.predict(self._one_hot_encoded(state))[0]
 
             # Exploration method called 'random noise' also using decaying
             # np.random.randn() adds gaussian random noise on Q-table for extra exploration
@@ -56,9 +81,26 @@ class Agent:
         return action
 
     def learn(self, state, action, reward, next_state):
-        q1 = self.Q_table[self._flatten(state)][action]
-        q2 = reward + self.y * np.max(self.Q_table[self._flatten(next_state)])
-        self.Q_table[self._flatten(state)][action] += self.lr * (q2 - q1)
+        q_values = self.Q_NN.predict(self._one_hot_encoded(state))[0]
+        q2 = reward + self.y * np.max(self.Q_NN.predict(self._one_hot_encoded(next_state))[0])
+
+        q_values[action] = q2
+
+        self.Q_NN.fit(
+            np.array(self._one_hot_encoded(state)),
+            np.array([q_values]),
+            epochs=1,
+            verbose=0
+        )
+
+    def get_Q_table(self):
+        Q_table = np.zeros([self.world_size, self.n_actions])
+        for r, _ in enumerate(Q_table):
+            encoded = np.zeros(self.world_size)
+            encoded[r] = 1.0
+            encoded = encoded.reshape([1, self.world_size])
+            Q_table[r] = self.Q_NN.predict(encoded)[0]
+        return Q_table
 
 
 if __name__ == "__main__":
@@ -99,9 +141,9 @@ if __name__ == "__main__":
     print('Score over time:', (sum(Gs) / n_episodes))
     show_list('Score over time', Gs)
 
-    # show Q-Table
-    print('Final Q-Table:')
-    pprint(np.round(agents[0].Q_table, 3))  # rounds
+    # show Q-Table    
+    print('Final Q-Table driven by NN:')
+    pprint(np.round(agents[0].get_Q_table(), 3))  # rounds
 
     # show map
     print('Map:')
@@ -109,6 +151,6 @@ if __name__ == "__main__":
     pprint(world_map)
 
     print('Q-map:')
-    Q_map = np.argmax(agents[0].Q_table, axis=1).reshape(env.size, env.size)  # get argmax from row-by-row
+    Q_map = np.argmax(agents[0].get_Q_table(), axis=1).reshape(env.size, env.size)  # get argmax from row-by-row
     Q_map_str = map_print(env.size, Q_map, env.action_space)
     pprint(Q_map_str)
