@@ -11,3 +11,4 @@ sh 0-Q-Table/run.sh
 # TODO
 
 - [ ] jupyter notebook
+- [ ] Removing unnecessary code duplications like `env.py`, `visualization.py` and `arguments.py`

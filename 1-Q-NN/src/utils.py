@@ -1,17 +1,13 @@
-class Enum:
-    def __init__(self, items: list):
-        self._items = items
-        self.size = len(items)
-        for i, e in enumerate(items):
-            setattr(self, e, i)
+import numpy as np
 
-    def __call__(self):
-        return self._items
 
-    # operator [] overloading
-    def __getitem__(self, key):
-        return self._items[key]
+def NN_to_Table(NN, world_size, n_actions):
+    Table = np.zeros([world_size, n_actions])
 
-    # define print format
-    def __repr__(self):
-        return '[' + ', '.join(self._items) + ']'
+    for r, _ in enumerate(Table):
+        encoded = np.zeros(world_size)
+        encoded[r] = 1.0
+        encoded = encoded.reshape([1, world_size])
+        Table[r] = NN.predict(encoded)[0]
+
+    return Table
