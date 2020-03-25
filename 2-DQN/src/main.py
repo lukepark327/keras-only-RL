@@ -56,7 +56,7 @@ if __name__ == "__main__":
     scattering('Score over time', Gs)
 
     # show Q-Table
-    Q_table = NN_to_Table(agent.Q_NN, agent.world_size, agent.n_actions)
+    Q_table = NN_to_Table(agent.Q, agent.world_size, agent.n_actions)
 
     print('Final Q-Table:')
     pprint(np.round(Q_table, 3))  # rounds
