@@ -17,6 +17,8 @@ if __name__ == "__main__":
     n_steps = args.s  # step number
     print("> Setting:", args)
 
+    update_target_interval = 10  # per episode  # TODO: argparse
+
     env = Env()
     agent = Agent(len(env.actions), env.world.size, lr, y, e)
 
@@ -42,6 +44,10 @@ if __name__ == "__main__":
                 break
 
         Gs.append(G)
+
+        # update Q_target
+        if i % update_target_interval == 0:
+            agent.update_target()
 
     # visualization
     # TODO: tensorboard

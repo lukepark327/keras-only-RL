@@ -22,12 +22,18 @@ class Agent:
 
         n_inputs = self.world_size
         n_outputs = self.n_actions
-        self.Q_NN = self._build_model(n_inputs, n_outputs)
-        self.Q_NN.compile(loss='mse', optimizer=Adam(lr=self.lr))
+        self.Q = self._build_model(n_inputs, n_outputs)
+        self.Q.compile(loss='mse', optimizer=Adam(lr=self.lr))
+
+        # Fixed Q-target
+        self.Q_target = self._build_model(n_inputs, n_outputs)
+        self.update_target()
 
         # TODO: save_weights
         # TODO: load_weights
 
+        # Replay Memory
+        # TODO: argparse
         self.batch_size = 64
         self.memory = ReplayMemory(2000)
         self.train_start = 1000
@@ -63,7 +69,7 @@ class Agent:
             # choose an action randomly (epsilon)
             action = random.randint(0, self.n_actions - 1)
         else:
-            q = self.Q_NN.predict(self._one_hot_encoded(state))[0]
+            q = self.Q.predict(self._one_hot_encoded(state))[0]
 
             # Exploration method called 'random noise' also using decaying
             # np.random.randn() adds gaussian random noise on Q-table for extra exploration
@@ -90,18 +96,21 @@ class Agent:
         for exp in experiences:
             state, action, reward, next_state = exp
 
-            q_values = self.Q_NN.predict(self._one_hot_encoded(state))[0]
-            q2 = reward + self.y * np.max(self.Q_NN.predict(self._one_hot_encoded(next_state))[0])
+            q_values = self.Q.predict(self._one_hot_encoded(state))[0]
+            q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
 
             q_values[action] = q2
 
             inputs.append(self._one_hot_encoded(state)[0])
             outputs.append(q_values)
 
-        self.Q_NN.fit(
+        self.Q.fit(
             np.array(inputs),
             np.array(outputs),
             batch_size=batch_size,
             epochs=1,
             verbose=0
         )
+
+    def update_target(self):
+        self.Q_target.set_weights(self.Q.get_weights())
