@@ -1,11 +1,11 @@
 # studying-RL
 
-studying Reinforcement Learning from A to Z.
+Studying and implementating Reinforcement Learning from A to Z without using OpenAI Gym.
 
 # How to run
 
 ```bash
-sh 0-Q-Learning/run.sh
+sh 0-Q-Table/run.sh
 ```
 
 # TODO
