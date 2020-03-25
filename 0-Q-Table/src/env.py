@@ -2,12 +2,11 @@ import numpy as np
 from collections import namedtuple
 
 
-Actions = namedtuple('Actions', ['Up', 'Down', 'Left', 'Right'])
-States = namedtuple('States', ['Normal', 'Start', 'Goal', 'Obstacle'])
-
-
 class Env:
     def __init__(self):
+        Actions = namedtuple('Actions', ['Up', 'Down', 'Left', 'Right'])
+        States = namedtuple('States', ['Normal', 'Start', 'Goal', 'Obstacle'])
+
         self.actions = Actions(0, 1, 2, 3)
         self.states = States(0, 1, 2, 3)
 
