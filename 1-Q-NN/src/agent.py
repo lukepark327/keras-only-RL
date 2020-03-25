@@ -28,9 +28,9 @@ class Agent:
 
     def _build_model(self, n_inputs, n_outputs):
         inputs = Input(shape=(n_inputs, ), name='state')
-        x = Dense(256, activation='relu')(inputs)
-        x = Dense(256, activation='relu')(x)
-        x = Dense(256, activation='relu')(x)
+        x = Dense(24, activation='relu')(inputs)
+        x = Dense(24, activation='relu')(x)
+        x = Dense(24, activation='relu')(x)
         x = Dense(n_outputs, activation='linear', name='action')(x)
         Q_model = Model(inputs, x)
         # Q_model.summary()

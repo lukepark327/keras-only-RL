@@ -4,8 +4,7 @@ from pprint import pprint
 import arguments
 from env import Env
 from agent import Agent
-from utils import NN_to_Table
-from visualization import scattering, map_print
+from visualization import scattering, map_print, NN_to_Table
 
 
 if __name__ == "__main__":
