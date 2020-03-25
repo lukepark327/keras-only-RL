@@ -3,6 +3,7 @@
 ## TODO
 
 - [ ] Adding Grid Search to find optimal hyperparameters
+- [ ] Using Huber loss for strong prediction when it is confused to predicting Q
 
 ## Concrete example
 
