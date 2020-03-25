@@ -1,4 +1,12 @@
-# Concrete example
+# Q-NN
+
+Replacing Q-table with deep neural network. There are no optimization methods and strategies.
+
+## TODO
+
+- [ ] Applying CNN
+
+## Concrete example
 
 ```
 Map:

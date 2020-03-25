@@ -1,8 +1,10 @@
-# TODO
+# Q-Table
+
+## TODO
 
 - [ ] Adding Grid Search to find optimal hyperparameters
 
-# Concrete example
+## Concrete example
 
 ```
 Map:
