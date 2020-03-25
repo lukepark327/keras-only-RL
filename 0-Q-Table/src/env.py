@@ -1,56 +1,80 @@
 import numpy as np
-from copy import deepcopy
+from collections import namedtuple
 
-from utils import Enum
+
+Actions = namedtuple('Actions', ['Up', 'Down', 'Left', 'Right'])
+States = namedtuple('States', ['Normal', 'Start', 'Goal', 'Obstacle'])
 
 
 class Env:
-    def __init__(self, n_agents: int):
-        self.action_space = Enum(['Up', 'Down', 'Left', 'Right'])
-        self.state_space = Enum(['Normal', 'Start', 'Goal', 'Obstacle'])
+    def __init__(self):
+        self.actions = Actions(0, 1, 2, 3)
+        self.states = States(0, 1, 2, 3)
 
-        self.world = None  # size * size
-        self.size = None
+        self.world = None
+        self.side_size = None
 
-        self.n_agents = n_agents
-        self.agent_states = [None for _ in range(self.n_agents)]
+        self.agent_state = None  # only one agent
 
         self.reset()
 
     def _create_world(self):
-        size = 6
+        side_size = 6  # N
         start = (0, 0)  # cordinate
         goals = {(4, 4)}
         obstacles = {(3, 4), (4, 2), (4, 3), (4, 5)}
 
         # initialization
-        world = np.full((size, size), self.state_space.Normal)
+        world = np.full((side_size, side_size), self.states.Normal)  # (N, N)
 
         # set Start point
-        world[start] = self.state_space.Start
+        world[start] = self.states.Start
 
         # set Goal points
         for goal in goals:
-            if world[goal] != self.state_space.Normal:
+            if world[goal] != self.states.Normal:
                 raise Exception('Goal cannot be the same as Start or Obstacles: ', goal)
-            world[goal] = self.state_space.Goal
+            world[goal] = self.states.Goal
 
         # set Obstacle points
         for obstacle in obstacles:
-            if world[obstacle] != self.state_space.Normal:
+            if world[obstacle] != self.states.Normal:
                 raise Exception('Obstacle cannot be the same as Start or Goals: ', obstacle)
-            world[obstacle] = self.state_space.Obstacle
+            world[obstacle] = self.states.Obstacle
 
         return world, start
 
     def reset(self):
-        self.world, state = self._create_world()
-        self.size = self.world.shape[0]
+        self.world, init_state = self._create_world()
+        self.side_size = self.world.shape[0]
 
-        self.agent_states = [state for _ in range(self.n_agents)]
-        return deepcopy(self.agent_states)  # first new observation
+        self.agent_state = init_state
+        return self.agent_state
 
-    def step(self, agent_num, action):
+    def _take_action(self, current_state, action):
+        if action == self.actions.Up:
+            next_state = (
+                max(current_state[0] - 1, 0),
+                current_state[1])
+        elif action == self.actions.Down:
+            next_state = (
+                min(current_state[0] + 1, self.side_size - 1),
+                current_state[1])
+        elif action == self.actions.Left:
+            next_state = (
+                current_state[0],
+                max(current_state[1] - 1, 0))
+        elif action == self.actions.Right:
+            next_state = (
+                current_state[0],
+                min(current_state[1] + 1, self.side_size - 1))
+        else:
+            pass  # default
+
+        self.agent_state = next_state
+        return next_state
+
+    def step(self, action):
         # initialization
         next_state = None
         reward = 0
@@ -58,44 +82,18 @@ class Env:
         info = {}  # extra info.
 
         # get next state
-        next_state = self._take_action(
-            self.agent_states[agent_num],
-            agent_num,
-            action)
+        next_state = self._take_action(self.agent_state, action)
 
         # get reward and flag
-        if self.world[next_state] == self.state_space.Goal:
+        if self.world[next_state] == self.states.Goal:
             reward = 1
             flag = True
-        if self.world[next_state] == self.state_space.Obstacle:
+        if self.world[next_state] == self.states.Obstacle:
             reward = -1
         else:
             pass  # default
 
         return next_state, reward, flag, info
-
-    def _take_action(self, current_state, agent_num, action):
-        if action == self.action_space.Up:
-            next_state = (
-                max(current_state[0] - 1, 0),
-                current_state[1])
-        elif action == self.action_space.Down:
-            next_state = (
-                min(current_state[0] + 1, self.size - 1),
-                current_state[1])
-        elif action == self.action_space.Left:
-            next_state = (
-                current_state[0],
-                max(current_state[1] - 1, 0))
-        elif action == self.action_space.Right:
-            next_state = (
-                current_state[0],
-                min(current_state[1] + 1, self.size - 1))
-        else:
-            pass  # default
-
-        self.agent_states[agent_num] = next_state
-        return next_state
 
     # TODO
     def render(self):
