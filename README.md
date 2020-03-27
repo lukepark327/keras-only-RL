@@ -6,44 +6,46 @@ Studying and implementating Reinforcement Learning from A to Z without using Ope
 
 # Contents
 
-## Q-Table
+## Value Based Methods
+
+### Q-Table
 
 Simple RL using table as a Q-function.
 
-## Q-NN
+### Q-NN
 
 Replacing table with Neural Network (NN). No optimization technique implemented.
 
-## DQN
+### DQN
 
 Deep Q-Network.
 
 * Fixed Q-target
 * Replay Memory
 
-## DDQN (Double DQN)
+### DDQN (Double DQN)
 
 Double DQN.
 
 * Using Double Estimator instead of Maximum Estimator.
 
-## Dueling DQN
+### Dueling DQN
 
 TBA
 
-## PER
+### PER
 
 TBA
 
-## NoisyNet
+### NoisyNet
 
 TBA
 
-## C51
+### C51
 
 TBA
 
-## Rainbow
+### Rainbow
 
 TBA
 
