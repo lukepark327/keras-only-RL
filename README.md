@@ -14,7 +14,7 @@ Simple RL using table as a Q-function.
 
 ### Q-NN
 
-Replacing table with Neural Network (NN). No optimization technique implemented.
+Replacing table with function approximation using Neural Network (NN). No optimization technique implemented.
 
 ### DQN
 
