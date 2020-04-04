@@ -23,15 +23,18 @@ Deep Q-Network.
 * Fixed Q-target
 * Replay Memory
 
-### DDQN (Double DQN)
+### DDQN
 
 Double DQN.
 
 * Using Double Estimator instead of Maximum Estimator.
 
-### Dueling DQN
+### D3QN
 
-TBA
+Dueling Double DQN (D3QN) is the Dueling DQN with a DDQN(Double DQN) method.
+
+* Value Function
+* Advantage Function
 
 ### PER
 
