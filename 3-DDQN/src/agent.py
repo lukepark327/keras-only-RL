@@ -97,8 +97,9 @@ class Agent:
             state, action, reward, next_state = exp
 
             q_values = self.Q.predict(self._one_hot_encoded(state))[0]
+            q_values_next = self.Q.predict(self._one_hot_encoded(next_state))[0]
 
-            selected_action = np.argmax(self.Q.predict(self._one_hot_encoded(next_state))[0])
+            selected_action = np.argmax(q_values_next)
             estimated_value = self.Q_target.predict(self._one_hot_encoded(next_state))[0][selected_action]
             q2 = reward + self.y * estimated_value
 

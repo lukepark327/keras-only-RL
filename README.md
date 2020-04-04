@@ -60,3 +60,4 @@ sh 0-Q-Table/run.sh
 - [ ] Using jupyter notebook.
 - [ ] More descriptions and references.
 - [ ] Removing unnecessary code duplications like `env.py`, `visualization.py` and `arguments.py`.
+- [ ] Referencing papers.
