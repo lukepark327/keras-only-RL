@@ -1,4 +1,5 @@
-from keras.layers import Dense, Input
+import keras.backend as K
+from keras.layers import Dense, Input, Lambda, Add
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -22,14 +23,11 @@ class Agent:
 
         n_inputs = self.world_size
         n_outputs = self.n_actions
-        self.V = self._build_V_model(n_inputs)
-        self.V.compile(loss='mse', optimizer=Adam(lr=self.lr))
-        self.A = self._build_A_model(n_inputs, n_outputs)
-        self.A.compile(loss='mse', optimizer=Adam(lr=self.lr))
+        self.Q = self._build_model(n_inputs, n_outputs)
+        self.Q.compile(loss='mse', optimizer=Adam(lr=self.lr))
 
         # Fixed Q-target
-        self.V_target = self._build_V_model(n_inputs)
-        self.A_target = self._build_A_model(n_inputs, n_outputs)
+        self.Q_target = self._build_model(n_inputs, n_outputs)
         self.update_target()
 
         # TODO: save_weights
@@ -41,37 +39,41 @@ class Agent:
         self.memory = ReplayMemory(2000)
         self.train_start = 1000
 
-    def predict(self, i_s):
-        # TODO: batch
-        q_s = []
-
-        # q = self.Q.predict(i_s)[0]
-        v = self.V.predict(i_s)[0][0]
-        a_s = self.A.predict(i_s)[0]
-        q = [v + a for a in a_s]
-        q_s.append(q)
-
-        return q_s
-
-    def _build_V_model(self, n_inputs):
+    def _build_model(self, n_inputs, n_outputs):
         inputs = Input(shape=(n_inputs, ), name='state')
         x = Dense(24, activation='relu')(inputs)
         x = Dense(24, activation='relu')(x)
-        x = Dense(24, activation='relu')(x)
-        x = Dense(1, activation='linear', name='action')(x)
-        V_model = Model(inputs, x)
-        # V_model.summary()
-        return V_model
 
-    def _build_A_model(self, n_inputs, n_outputs):
-        inputs = Input(shape=(n_inputs, ), name='state')
-        x = Dense(24, activation='relu')(inputs)
-        x = Dense(24, activation='relu')(x)
-        x = Dense(24, activation='relu')(x)
-        x = Dense(n_outputs, activation='linear', name='action')(x)
-        A_model = Model(inputs, x)
-        # A_model.summary()
-        return A_model
+        V = Dense(24, activation='relu')(x)
+        V = Dense(1, activation='linear', name='V')(V)
+
+        A = Dense(24, activation='relu')(x)
+        A = Dense(n_outputs, activation='linear', name='A')(A)
+
+        # Directly summing V and A gives us no guarantees
+        # that the A will actually predict the V.
+        # naïve:
+        # TBA
+
+        # Instead we combine them with criterion - Max or Avg
+        # On the one hand this(Avg) loses the original semantics of V and A (c.f. Max)
+        # because they are now off-target by a constant
+        # but on the other hand it increases the stability of the optimization.
+        # Ref: Dueling Network Architectures for Deep Reinforcement Learning
+        # Avg:
+
+        # V = Lambda(
+        #     lambda v: K.expand_dims(v[:, 0], -1), output_shape=(n_outputs, )
+        # )(V)
+        A = Lambda(
+            lambda a: a[:, :] - K.mean(a[:, :], keepdims=True),
+            output_shape=(n_outputs, )
+        )(A)
+
+        q = Add()([V, A])
+        Q_model = Model(inputs, q)
+        # Q_model.summary()
+        return Q_model
 
     def _one_hot_encoded(self, cord):
         encoded = np.zeros(self.world_size)
@@ -94,11 +96,7 @@ class Agent:
             # choose an action randomly (epsilon)
             action = random.randint(0, self.n_actions - 1)
         else:
-            # q = self.Q.predict(self._one_hot_encoded(state))[0]
-            # v = self.V.predict(self._one_hot_encoded(state))[0][0]
-            # a_s = self.A.predict(self._one_hot_encoded(state))[0]
-            # q = [v + a for a in a_s]
-            q = self.predict(self._one_hot_encoded(state))[0]
+            q = self.Q.predict(self._one_hot_encoded(state))[0]
 
             # Exploration method called 'random noise' also using decaying
             # np.random.randn() adds gaussian random noise on Q-table for extra exploration
@@ -121,52 +119,29 @@ class Agent:
 
         experiences = self.memory.sample(batch_size)
         inputs = []
-        v_outputs = []
-        a_outputs = []
+        outputs = []
         for exp in experiences:
             state, action, reward, next_state = exp
 
-            # q_values = self.Q.predict(self._one_hot_encoded(state))[0]
-            a_s = self.A.predict(self._one_hot_encoded(state))[0]
-
-            # q_values_next = self.Q.predict(self._one_hot_encoded(next_state))[0]
-            # v_next = self.V.predict(self._one_hot_encoded(next_state))[0][0]
-            # a_s_next = self.A.predict(self._one_hot_encoded(next_state))[0]
-            # q_values_next = [v_next + a for a in a_s_next]
-            q_values_next = self.predict(self._one_hot_encoded(next_state))[0]
+            q_values = self.Q.predict(self._one_hot_encoded(state))[0]
+            q_values_next = self.Q.predict(self._one_hot_encoded(next_state))[0]
 
             selected_action = np.argmax(q_values_next)
+            estimated_value = self.Q_target.predict(self._one_hot_encoded(next_state))[0][selected_action]
+            q2 = reward + self.y * estimated_value
 
-            # self.Q_target.predict(self._one_hot_encoded(next_state))[0]
-            v_target = self.V_target.predict(self._one_hot_encoded(next_state))[0][0]
-            a_s_target = self.A_target.predict(self._one_hot_encoded(next_state))[0]
-
-            estimated_a = a_s_target[selected_action]
-            a2 = reward + self.y * estimated_a
-
-            a_s[action] = a2
+            q_values[action] = q2
 
             inputs.append(self._one_hot_encoded(state)[0])
-            v_outputs.append(v_target)
-            a_outputs.append(a_s)
+            outputs.append(q_values)
 
-        # self.Q.fit()
-        self.V.fit(
+        self.Q.fit(
             np.array(inputs),
-            np.array(v_outputs),
-            batch_size=batch_size,
-            epochs=1,
-            verbose=0
-        )
-
-        self.A.fit(
-            np.array(inputs),
-            np.array(a_outputs),
+            np.array(outputs),
             batch_size=batch_size,
             epochs=1,
             verbose=0
         )
 
     def update_target(self):
-        self.V_target.set_weights(self.V.get_weights())
-        self.A_target.set_weights(self.A.get_weights())
+        self.Q_target.set_weights(self.Q.get_weights())
