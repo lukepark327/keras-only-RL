@@ -5,6 +5,7 @@ Replacing Q-table with deep neural network. There are no optimization methods an
 ## TODO
 
 - [ ] Applying CNN
+- [ ] Random perturbations
 
 ## Concrete example
 

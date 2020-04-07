@@ -48,6 +48,10 @@ TBA
 
 TBA
 
+<!--
+A Distributional Perspective on Reinforcement Learning (C51)
+-->
+
 ### Rainbow
 
 TBA
@@ -64,3 +68,6 @@ sh 0-Q-Table/run.sh
 - [ ] More descriptions and references.
 - [ ] Removing unnecessary code duplications like `env.py`, `visualization.py` and `arguments.py`.
 - [ ] Referencing papers.
+- [ ] Multi-Step Learning.
+- [ ] Removing ordering '0, 1, ...'.
+- [ ] Moving TODO list into issues.
