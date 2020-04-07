@@ -18,13 +18,13 @@ def map_print(size, matrix, names):
     return map
 
 
-def NNs_to_Table(NNs, world_size, n_actions):
+def NN_to_Table(NN, world_size, n_actions):
     Table = np.zeros([world_size, n_actions])
 
     for r, _ in enumerate(Table):
         encoded = np.zeros(world_size)
         encoded[r] = 1.0
         encoded = encoded.reshape([1, world_size])
-        Table[r] = NNs.predict(encoded)[0]
+        Table[r] = NN.predict(encoded)[0]
 
     return Table
