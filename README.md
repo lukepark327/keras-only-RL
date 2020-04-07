@@ -71,3 +71,4 @@ sh 0-Q-Table/run.sh
 - [ ] Multi-Step Learning.
 - [ ] Removing ordering '0, 1, ...'.
 - [ ] Moving TODO list into issues.
+- [ ] Renaming NN's output layer.
