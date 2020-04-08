@@ -70,7 +70,7 @@ class Agent:
             output_shape=(n_outputs, )
         )(A)
 
-        q = Add()([V, A])
+        q = Add()([V, A])  # tensor shape broadcasting
         Q_model = Model(inputs, q)
         # Q_model.summary()
         return Q_model
