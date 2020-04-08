@@ -6,7 +6,9 @@ Studying and implementating Reinforcement Learning from A to Z without using Ope
 
 # Contents
 
-## Value Based Methods
+TBA
+
+# To the Rainbow
 
 ### Q-Table
 
@@ -36,11 +38,11 @@ Dueling Double DQN (D3QN) is the Dueling DQN with a DDQN(Double DQN) method.
 * Value Function
 * Advantage Function
 
-### PER
+### NoisyNet
 
 TBA
 
-### NoisyNet
+### PER
 
 TBA
 
@@ -58,17 +60,21 @@ TBA
 
 # How to run
 
+## EX) Q-Table
+
 ```bash
-sh 0-Q-Table/run.sh
+sh Q-Table/run.sh
+```
+
+## Help
+
+```bash
+sh Q-Table/run.sh -h
 ```
 
 # TODO
 
 - [ ] Using jupyter notebook.
 - [ ] More descriptions and references.
-- [ ] Removing unnecessary code duplications like `env.py`, `visualization.py` and `arguments.py`.
-- [ ] Referencing papers.
 - [ ] Multi-Step Learning.
-- [ ] Removing ordering '0, 1, ...'.
 - [ ] Moving TODO list into issues.
-- [ ] Renaming NN's output layer.
