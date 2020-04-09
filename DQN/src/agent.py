@@ -4,7 +4,7 @@ from keras.optimizers import Adam
 import numpy as np
 import random
 
-from utils import ReplayMemory
+from memories import ReplayMemory
 
 
 class Agent:
@@ -81,8 +81,8 @@ class Agent:
 
         return action
 
-    def append_sample(self, state, action, reward, next_state):
-        self.memory.push(state, action, reward, next_state)
+    def append_sample(self, state, action, reward, next_state, done):
+        self.memory.push(state, action, reward, next_state, done)
 
     def learn(self):
         if len(self.memory) < self.train_start:
@@ -94,10 +94,14 @@ class Agent:
         inputs = []
         outputs = []
         for exp in experiences:
-            state, action, reward, next_state = exp
+            state, action, reward, next_state, done = exp
 
             q_values = self.Q.predict(self._one_hot_encoded(state))[0]
-            q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
+
+            if done:
+                q2 = reward
+            else:
+                q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
 
             q_values[action] = q2
 
