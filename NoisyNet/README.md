@@ -13,7 +13,7 @@ The parameters of the noise are learned with gradient descent along with the rem
 ## TODO
 
 - [ ] CNN -> Fully connected layer(s).
-- [ ] Test: DDQN, Dueling DQN, D3QN
+- [ ] Test: Combining DDQN, Dueling DQN, D3QN
 
 ## Concrete example
 
@@ -27,6 +27,7 @@ Map:
  ['Normal   ', 'Normal   ', 'Normal   ', 'Normal   ', 'Normal   ', 'Normal   ']]
 ```
 
+<!--
 ## Result
 
 ```
@@ -90,3 +91,4 @@ Q-map:
  ['Right    ', 'Up       ', 'Down     ', 'Down     ', 'Down     ', 'Left     '],
  ['Right    ', 'Right    ', 'Right    ', 'Right    ', 'Right    ', 'Right    ']]
 ```
+-->
