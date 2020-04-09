@@ -4,7 +4,7 @@ from keras.optimizers import Adam
 import numpy as np
 import random
 
-from utils import ReplayMemory
+from memories import ReplayMemory
 from layers import NoisyDense
 
 
@@ -31,9 +31,9 @@ class Agent:
 
         # Replay Memory
         # TODO: argparse
-        self.batch_size = 64
-        self.memory = ReplayMemory(2000)
-        self.train_start = 1000
+        self.batch_size = 32
+        self.memory = ReplayMemory(20000)
+        self.train_start = 32
 
     def _build_model(self, n_inputs, n_outputs):
         inputs = Input(shape=(n_inputs, ), name='state')
@@ -58,8 +58,8 @@ class Agent:
         action = random.choice(np.where(q == q.max())[0])
         return action
 
-    def append_sample(self, state, action, reward, next_state):
-        self.memory.push(state, action, reward, next_state)
+    def append_sample(self, state, action, reward, next_state, done):
+        self.memory.push(state, action, reward, next_state, done)
 
     def learn(self):
         if len(self.memory) < self.train_start:
@@ -71,10 +71,14 @@ class Agent:
         inputs = []
         outputs = []
         for exp in experiences:
-            state, action, reward, next_state = exp
+            state, action, reward, next_state, done = exp
 
             q_values = self.Q.predict(self._one_hot_encoded(state))[0]
-            q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
+
+            if done:
+                q2 = reward
+            else:
+                q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
 
             q_values[action] = q2
 

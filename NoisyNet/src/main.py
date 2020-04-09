@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
             action = agent.get_action(i, state)
             next_state, reward, done, _ = env.step(action)
-            agent.append_sample(state, action, reward, next_state)
+            agent.append_sample(state, action, reward, next_state, done)
             agent.learn()
 
             G += reward  # total reward

@@ -21,8 +21,7 @@ class NoisyDense(Layer):
         self.input_dim = input_shape[-1]
 
         # Factorised NoisyNet
-        # Ref: https://github.com/LuEE-C/Noisy-A3C-Keras/blob/ba121a296c644c2b634b485f21769d7d5667fbad/NoisyDense.py#L91
-        # Ref: https://github.com/jakegrigsby/keras-rl/blob/b4bef96a36e12f8e1292bd0e5c63b6a4663466eb/rl/layers.py
+        # Ref: https://github.com/jakegrigsby/keras-rl/blob/master/rl/layers.py
         sqrt_inputs = self.input_dim ** (1 / 2)
         self.sigma_initializer = initializers.Constant(value=0.5 / sqrt_inputs)
         self.mu_initializer = initializers.RandomUniform(minval=(-1.0 / sqrt_inputs), maxval=(1.0 / sqrt_inputs))
@@ -56,17 +55,16 @@ class NoisyDense(Layer):
         e_j = K.random_normal((self.output_dim,))
 
         # Factorised Gaussian noise
-        def f(e):
-            return K.sign(e) * (K.sqrt(K.abs(e)))
-
-        eW = f(e_i) * f(e_j)
-        eB = f(e_j)
+        # def f(e):
+        #     return K.sign(e) * (K.sqrt(K.abs(e)))
+        eW = (K.sign(e_i) * (K.sqrt(K.abs(e_i)))) * (K.sign(e_j) * (K.sqrt(K.abs(e_j))))
+        eB = K.sign(e_j) * (K.sqrt(K.abs(e_j)))
 
         noise_injected_weights = K.dot(x, self.mu_weight + (self.sigma_weight * eW))
         noise_injected_bias = self.mu_bias + (self.sigma_bias * eB)
         output = K.bias_add(noise_injected_weights, noise_injected_bias)
 
-        if self.activation is not None:
+        if self.activation != None:
             output = self.activation(output)
         return output
 
@@ -76,6 +74,3 @@ class NoisyDense(Layer):
         output_shape = list(input_shape)
         output_shape[-1] = self.output_dim
         return tuple(output_shape)
-
-    # TODO: remove_noise()
-    # TODO: Is this function needed?
