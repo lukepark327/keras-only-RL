@@ -38,8 +38,8 @@ class Agent:
 
     def _build_model(self, n_inputs, n_outputs):
         inputs = Input(shape=(n_inputs, ), name='state')
-        x = Dense(24, activation='relu')(inputs)
-        x = Dense(24, activation='relu')(x)
+        x = NoisyDense(24, activation='relu')(inputs)
+        x = NoisyDense(24, activation='relu')(x)
 
         V = NoisyDense(24, activation='relu')(x)
         V = NoisyDense(1, activation='linear', name='V')(V)
