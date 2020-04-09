@@ -15,6 +15,9 @@ class NoisyDense(Layer):
         self.output_dim = output_dim
         self.activation = activations.get(activation)
 
+        self.e_i = None
+        self.e_j = None
+
     def build(self, input_shape):
         # assert isinstance(input_shape, list)
 
@@ -44,21 +47,18 @@ class NoisyDense(Layer):
                                           shape=(self.output_dim,),
                                           initializer=self.sigma_initializer)
 
+        self.reset_noise()
         super(NoisyDense, self).build(input_shape)
 
     def call(self, x):
         # assert isinstance(x, list)
 
-        # Random variables
-        # sample from noise distribution
-        e_i = K.random_normal((self.input_dim, self.output_dim))
-        e_j = K.random_normal((self.output_dim,))
-
         # Factorised Gaussian noise
-        # def f(e):
-        #     return K.sign(e) * (K.sqrt(K.abs(e)))
-        eW = (K.sign(e_i) * (K.sqrt(K.abs(e_i)))) * (K.sign(e_j) * (K.sqrt(K.abs(e_j))))
-        eB = K.sign(e_j) * (K.sqrt(K.abs(e_j)))
+        def f(e):
+            return K.sign(e) * (K.sqrt(K.abs(e)))
+
+        eW = f(self.e_i) * f(self.e_j)
+        eB = f(self.e_j)
 
         noise_injected_weights = K.dot(x, self.mu_weight + (self.sigma_weight * eW))
         noise_injected_bias = self.mu_bias + (self.sigma_bias * eB)
@@ -74,3 +74,9 @@ class NoisyDense(Layer):
         output_shape = list(input_shape)
         output_shape[-1] = self.output_dim
         return tuple(output_shape)
+
+    def reset_noise(self):
+        # Random variables
+        # sample from noise distribution
+        self.e_i = K.random_normal((self.input_dim, self.output_dim))
+        self.e_j = K.random_normal((self.output_dim,))

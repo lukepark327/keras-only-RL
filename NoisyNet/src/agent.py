@@ -31,19 +31,25 @@ class Agent:
 
         # Replay Memory
         # TODO: argparse
-        self.batch_size = 32
-        self.memory = ReplayMemory(20000)
-        self.train_start = 32
+        self.batch_size = 64
+        self.memory = ReplayMemory(2000)
+        self.train_start = 1000
 
     def _build_model(self, n_inputs, n_outputs):
         inputs = Input(shape=(n_inputs, ), name='state')
-        x = NoisyDense(24, activation='relu')(inputs)
-        x = NoisyDense(24, activation='relu')(x)
-        x = NoisyDense(24, activation='relu')(x)
+        x = NoisyDense(24, activation='relu', name='h1')(inputs)
+        x = NoisyDense(24, activation='relu', name='h2')(x)
+        x = NoisyDense(24, activation='relu', name='h3')(x)
         x = NoisyDense(n_outputs, activation='linear', name='action')(x)
         Q_model = Model(inputs, x)
         # Q_model.summary()
         return Q_model
+
+    def _reset_noise(self, NN):
+        NN.get_layer('h1').reset_noise()
+        NN.get_layer('h2').reset_noise()
+        NN.get_layer('h3').reset_noise()
+        NN.get_layer('action').reset_noise()
 
     def _one_hot_encoded(self, cord):
         encoded = np.zeros(self.world_size)
@@ -92,6 +98,9 @@ class Agent:
             epochs=1,
             verbose=0
         )
+
+        self._reset_noise(self.Q)
+        self._reset_noise(self.Q_target)
 
     def update_target(self):
         self.Q_target.set_weights(self.Q.get_weights())
