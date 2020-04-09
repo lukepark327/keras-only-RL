@@ -39,9 +39,12 @@ Dueling Double DQN (D3QN) is the Dueling DQN with a DDQN(Double DQN) method.
 * Value Function
 * Advantage Function
 
-### NoisyNet
+### NoisyNet (DQN-based)
 
-TBA
+NoisyNet replaces e-greedy heuristics with noise on weights (NoisyDense) .
+
+* Agent's policy can be used to aid efficient exploration.
+* Maybe it works better than the e-greedy method when the problem is hard to solve...
 
 ### PER
 
@@ -72,6 +75,19 @@ sh Q-Table/run.sh
 ```bash
 sh Q-Table/run.sh -h
 ```
+```bash
+usage: main.py [-h] [--lr L] [--y Y] [--e E] [--r R] [--s S]
+
+Some hyperparameters
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --lr L      learning rate
+  --y Y       discount factor
+  --e E       e-greedy factor
+  --r R       total episodes (rounds)
+  --s S       total steps per episode
+```
 
 # TODO
 
@@ -79,3 +95,4 @@ sh Q-Table/run.sh -h
 - [ ] More descriptions and references.
 - [ ] Multi-Step Learning.
 - [ ] Moving TODO list into issues.
+- [ ] Combining Q-NN, DQN, DDQN, D3QN, NoisyNet into a one file.
