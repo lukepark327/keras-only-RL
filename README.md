@@ -9,7 +9,7 @@ Studying and implementating Reinforcement Learning from A to Z without using Ope
 
 TBA
 
-# To the Rainbow
+# Basic
 
 ### Q-Table
 
@@ -18,6 +18,8 @@ Simple RL using table as a Q-function.
 ### Q-NN
 
 Replacing table with function approximation using Neural Network (NN). No optimization technique implemented.
+
+# To the Rainbow
 
 ### DQN
 
@@ -58,6 +60,10 @@ TBA
 A Distributional Perspective on Reinforcement Learning (C51)
 -->
 
+### Multi-Step Learning
+
+TBA
+
 ### Rainbow
 
 TBA
@@ -93,9 +99,9 @@ optional arguments:
 
 - [ ] Using jupyter notebook.
 - [ ] More descriptions and references.
-- [ ] Multi-Step Learning.
 - [ ] Moving TODO list into issues.
 - [ ] Combining DQN, DDQN, D3QN, NoisyNet, PER into a one file.
 - [ ] Adding an action: Stop
 - [ ] Evaluating elapsed time
 - [ ] GPU
+- [ ] requirements.txt

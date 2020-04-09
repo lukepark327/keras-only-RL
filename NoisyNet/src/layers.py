@@ -75,6 +75,7 @@ class NoisyDense(Layer):
         output_shape[-1] = self.output_dim
         return tuple(output_shape)
 
+    # Ref: https://github.com/LuEE-C/Noisy-A3C-Keras
     def reset_noise(self):
         # Random variables
         # sample from noise distribution
