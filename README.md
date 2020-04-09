@@ -95,6 +95,7 @@ optional arguments:
 - [ ] More descriptions and references.
 - [ ] Multi-Step Learning.
 - [ ] Moving TODO list into issues.
-- [ ] Combining DQN, DDQN, D3QN, NoisyNet into a one file.
+- [ ] Combining DQN, DDQN, D3QN, NoisyNet, PER into a one file.
 - [ ] Adding an action: Stop
 - [ ] Evaluating elapsed time
+- [ ] GPU
