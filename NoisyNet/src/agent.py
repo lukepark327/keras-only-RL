@@ -1,5 +1,4 @@
-import keras.backend as K
-from keras.layers import Dense, Input, Lambda, Add
+from keras.layers import Input
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -40,35 +39,9 @@ class Agent:
         inputs = Input(shape=(n_inputs, ), name='state')
         x = NoisyDense(24, activation='relu')(inputs)
         x = NoisyDense(24, activation='relu')(x)
-
-        V = NoisyDense(24, activation='relu')(x)
-        V = NoisyDense(1, activation='linear', name='V')(V)
-
-        A = NoisyDense(24, activation='relu')(x)
-        A = NoisyDense(n_outputs, activation='linear', name='A')(A)
-
-        # Directly summing V and A gives us no guarantees
-        # that the A will actually predict the V.
-        # naïve:
-        # TBA
-
-        # Instead we combine them with criterion - Max or Avg
-        # On the one hand this(Avg) loses the original semantics of V and A (c.f. Max)
-        # because they are now off-target by a constant
-        # but on the other hand it increases the stability of the optimization.
-        # Ref: Dueling Network Architectures for Deep Reinforcement Learning
-        # Avg:
-
-        # V = Lambda(
-        #     lambda v: K.expand_dims(v[:, 0], -1), output_shape=(n_outputs, )
-        # )(V)
-        A = Lambda(
-            lambda a: a[:, :] - K.mean(a[:, :], keepdims=True),
-            output_shape=(n_outputs, )
-        )(A)
-
-        q = Add()([V, A])  # tensor shape broadcasting
-        Q_model = Model(inputs, q)
+        x = NoisyDense(24, activation='relu')(x)
+        x = NoisyDense(n_outputs, activation='linear', name='action')(x)
+        Q_model = Model(inputs, x)
         # Q_model.summary()
         return Q_model
 
@@ -101,11 +74,7 @@ class Agent:
             state, action, reward, next_state = exp
 
             q_values = self.Q.predict(self._one_hot_encoded(state))[0]
-            q_values_next = self.Q.predict(self._one_hot_encoded(next_state))[0]
-
-            selected_action = np.argmax(q_values_next)
-            estimated_value = self.Q_target.predict(self._one_hot_encoded(next_state))[0][selected_action]
-            q2 = reward + self.y * estimated_value
+            q2 = reward + self.y * np.max(self.Q_target.predict(self._one_hot_encoded(next_state))[0])
 
             q_values[action] = q2
 
