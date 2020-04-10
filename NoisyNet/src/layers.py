@@ -3,6 +3,7 @@ from keras import initializers, activations
 from keras.engine.topology import Layer
 
 
+# TODO: variables convert into private
 # Buile own layer
 # Ref: https://keras.io/ko/layers/writing-your-own-keras-layers/
 class NoisyDense(Layer):
@@ -10,13 +11,13 @@ class NoisyDense(Layer):
                  output_dim,
                  activation=None,
                  **kwargs):
-        super(NoisyDense, self).__init__(**kwargs)
-
         self.output_dim = output_dim
         self.activation = activations.get(activation)
 
         self.e_i = None
         self.e_j = None
+
+        super(NoisyDense, self).__init__(**kwargs)
 
     def build(self, input_shape):
         # assert isinstance(input_shape, list)
@@ -33,19 +34,23 @@ class NoisyDense(Layer):
         # TODO: constraint, regularizer
         self.mu_weight = self.add_weight(name='mu_weights',
                                          shape=(self.input_dim, self.output_dim),
-                                         initializer=self.mu_initializer)
+                                         initializer=self.mu_initializer,
+                                         trainable=True)
 
         self.sigma_weight = self.add_weight(name='sigma_weights',
                                             shape=(self.input_dim, self.output_dim),
-                                            initializer=self.sigma_initializer)
+                                            initializer=self.sigma_initializer,
+                                            trainable=True)
 
         self.mu_bias = self.add_weight(name='mu_bias',
                                        shape=(self.output_dim,),
-                                       initializer=self.mu_initializer)
+                                       initializer=self.mu_initializer,
+                                       trainable=True)
 
         self.sigma_bias = self.add_weight(name='sigma_bias',
                                           shape=(self.output_dim,),
-                                          initializer=self.sigma_initializer)
+                                          initializer=self.sigma_initializer,
+                                          trainable=True)
 
         self.reset_noise()
         super(NoisyDense, self).build(input_shape)
@@ -60,9 +65,9 @@ class NoisyDense(Layer):
         eW = f(self.e_i) * f(self.e_j)
         eB = f(self.e_j)
 
-        noise_injected_weights = K.dot(x, self.mu_weight + (self.sigma_weight * eW))
+        noise_injected_weights = self.mu_weight + (self.sigma_weight * eW)
         noise_injected_bias = self.mu_bias + (self.sigma_bias * eB)
-        output = K.bias_add(noise_injected_weights, noise_injected_bias)
+        output = K.bias_add(K.dot(x, noise_injected_weights), noise_injected_bias)
 
         if self.activation != None:
             output = self.activation(output)
