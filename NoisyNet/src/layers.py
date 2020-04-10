@@ -58,12 +58,15 @@ class NoisyDense(Layer):
     def call(self, x):
         # assert isinstance(x, list)
 
-        # Factorised Gaussian noise
+        # Factorised Gaussian noise:
         def f(e):
             return K.sign(e) * (K.sqrt(K.abs(e)))
-
         eW = f(self.e_i) * f(self.e_j)
         eB = f(self.e_j)
+
+        # # Independent Gaussian noise:
+        # eW = self.e_i
+        # eB = self.e_j
 
         noise_injected_weights = self.mu_weight + (self.sigma_weight * eW)
         noise_injected_bias = self.mu_bias + (self.sigma_bias * eB)
