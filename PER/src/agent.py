@@ -24,10 +24,10 @@ class Agent:
 
         n_inputs = self.world_size
         n_outputs = self.n_actions
-        self.Q = self._build_model(n_inputs, n_outputs)
+        self.Q_train, self.Q = self._build_model(n_inputs, n_outputs, trainable=True)
 
         # Fixed Q-target
-        self.Q_target = self._build_model(n_inputs, n_outputs)
+        _, self.Q_target = self._build_model(n_inputs, n_outputs, trainable=False)
         self.update_target()
 
         # TODO: save_weights
@@ -44,15 +44,35 @@ class Agent:
         self.memory = PrioritizedReplayMemory(2000)
         self.train_start = 1000
 
-    def _build_model(self, n_inputs, n_outputs):
-        inputs = Input(shape=(n_inputs, ), name='state')
-        x = Dense(24, activation='relu')(inputs)
-        x = Dense(24, activation='relu')(x)
-        x = Dense(24, activation='relu')(x)
-        x = Dense(n_outputs, activation='linear', name='action')(x)
-        Q_model = Model(inputs, x)
+    def _build_model(self, n_inputs, n_outputs, trainable=False):
+        x = Input(shape=(n_inputs, ), name='in')
+        f = Dense(24, activation='relu')(x)
+        f = Dense(24, activation='relu')(f)
+        f = Dense(24, activation='relu')(f)
+        y_pred = Dense(n_outputs, activation='linear', name='y_pred')(f)
+
+        # for custom fit
+        y_true = Input(shape=(n_outputs, ), name='y_true')
+        importances = Input(shape=(1, ), name='importances')
+
+        Q_train_model = Model(
+            inputs=[x, y_true, importances],
+            outputs=y_pred,
+            name='train_only'
+        )
+
+        if trainable:
+            # custom loss function
+            Q_train_model.add_loss(PER_loss(y_true, y_pred, importances))
+            Q_train_model.compile(loss=None, optimizer=Adam(lr=self.lr))
+        else:
+            pass
+
+        # testing model for easier use.
+        Q_model = Model(inputs=x, outputs=y_pred, name='test_only')
+
         # Q_model.summary()
-        return Q_model
+        return Q_train_model, Q_model
 
     def _one_hot_encoded(self, cord):
         encoded = np.zeros(self.world_size)
@@ -125,12 +145,8 @@ class Agent:
             inputs.append(self._one_hot_encoded(state)[0])
             outputs.append(q_values)
 
-        # custom loss function
-        self.Q.compile(loss=PER_loss(importances), optimizer=Adam(lr=self.lr))
-
-        self.Q.fit(
-            np.array(inputs),
-            np.array(outputs),
+        self.Q_train.fit(
+            [np.array(inputs), np.array(outputs), importances],
             batch_size=batch_size,
             epochs=1,
             verbose=0
