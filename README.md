@@ -105,3 +105,4 @@ optional arguments:
 - [ ] Evaluating elapsed time
 - [ ] GPU
 - [ ] requirements.txt
+- [ ] For loop in agent.learn -> Batch inferences.

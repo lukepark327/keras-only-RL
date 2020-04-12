@@ -59,11 +59,12 @@ class Agent:
         # Ref: Dueling Network Architectures for Deep Reinforcement Learning
         # Avg:
         V = Lambda(
-            lambda v: K.expand_dims(v[:, 0], -1), output_shape=(n_outputs, )
+            lambda v: K.expand_dims(v[:, 0], -1)
+            # output_shape=(None, 1)
         )(V)
         A = Lambda(
-            lambda a: a[:, :] - K.mean(a[:, :], keepdims=True),
-            output_shape=(n_outputs, )
+            lambda a: a[:, :] - K.mean(a[:, :], keepdims=True)
+            # output_shape=(None, n_outputs)
         )(A)
 
         q = Add()([V, A])  # tensor shape broadcasting
