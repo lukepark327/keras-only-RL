@@ -41,7 +41,7 @@ Dueling Double DQN (D3QN) is the Dueling DQN with a DDQN(Double DQN) method.
 * Value Function
 * Advantage Function
 
-### NoisyNet (DQN-based)
+### NoisyNet (DQN-based) (WIP)
 
 NoisyNet replaces e-greedy heuristics with noise on weights (NoisyDense) .
 
@@ -52,7 +52,7 @@ NoisyNet replaces e-greedy heuristics with noise on weights (NoisyDense) .
 
 TBA
 
-### C51
+### C51 (WIP)
 
 TBA
 
