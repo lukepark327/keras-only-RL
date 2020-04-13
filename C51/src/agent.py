@@ -1,5 +1,5 @@
 import keras.backend as K
-from keras.layers import Dense, Input, Lambda, Multiply
+from keras.layers import Dense, Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -33,13 +33,13 @@ class Agent:
         self.delta_z = (self.v_max - self.v_min) / float(self.num_atoms - 1)
         self.z = [self.v_min + i * self.delta_z for i in range(self.num_atoms)]
 
-        self.Z, self.Q = self._build_model(n_inputs, n_outputs)
+        self.Z, self.Q = self._build_model(n_inputs, n_outputs, num_atoms=self.num_atoms)
 
         # Use categorical_crossentropy
         self.Z.compile(loss='categorical_crossentropy', optimizer=Adam(lr=self.lr))
 
         # Fixed Q-target
-        self.Z_target, _ = self._build_model(n_inputs, n_outputs)
+        self.Z_target, _ = self._build_model(n_inputs, n_outputs, num_atoms=self.num_atoms)
         self.update_target()
 
         # TODO: save_weights
@@ -128,16 +128,6 @@ class Agent:
 
         for i, exp in enumerate(experiences):
             state, action, reward, next_state, done = exp
-
-            # TODO: optimize
-            z_values = self.Z.predict(self._one_hot_encoded(state))  # list of np.array: (4, 1, 51)
-            # Preserving the other values except z_values[action]
-            for t in range(self.n_actions):
-                if t == action:
-                    pass
-                else:
-                    for j in range(self.num_atoms):
-                        outputs[t][i][j] += z_values[t][0][j]
 
             # Ref: https://github.com/flyyufelix/C51-DDQN-Keras
             if done:

@@ -106,3 +106,4 @@ optional arguments:
 - [ ] GPU
 - [ ] requirements.txt
 - [ ] For loop in agent.learn -> Batch inferences.
+- [ ] No negative reward.
