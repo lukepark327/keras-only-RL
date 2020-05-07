@@ -1,9 +1,6 @@
-# studying-RL
+# keras-only-RL
 
-Studying and implementating Reinforcement Learning from A to Z without using OpenAI Gym.
-
-* OpenAI Gym style code, but no external library (no OpenAI Gym import)
-* Keras-based implementation
+Implementating Reinforcement Learning from A to Z using keras only.
 
 # Contents
 
