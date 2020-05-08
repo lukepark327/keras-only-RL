@@ -61,7 +61,7 @@ A Distributional Perspective on Reinforcement Learning (C51)
 
 TBA
 
-### Rainbow
+# Rainbow
 
 TBA
 
