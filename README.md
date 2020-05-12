@@ -14,11 +14,13 @@ TBA
 
 # How to run
 
-## For example: D3QN
+## For example: Run Atari Breakout with D3QN Agent
 
 ```bash
 sh atari_breakout_run.sh --double=True --dueling=True
 ```
+
+![demo](./images/atari-breakout-D3QN.gif)
 
 ## Help
 

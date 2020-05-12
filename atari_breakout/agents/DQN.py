@@ -26,7 +26,7 @@ class DQNAgent:
         # Training
         self.no_op_steps = 30
         self.batch_size = 32
-        self.train_start = 1000  # 50000
+        self.train_start = 50000
         self.update_target_rate = 10000
         self.discount_factor = 0.99
         self.memory = ReplayMemory(400000)
