@@ -9,7 +9,11 @@ import random
 from skimage.color import rgb2gray
 from skimage.transform import resize
 
-from agent import Agent
+from agents.DQN import DQNAgent
+from agents.Double import DDQNAgent
+from agents.Dueling import DuelingAgent, D3QNAgent
+
+import arguments
 
 
 def pre_processing(observe):
@@ -21,10 +25,25 @@ def pre_processing(observe):
 
 
 if __name__ == "__main__":
-    EPISODES = 50000  # TODO: argparse
+    # arguments
+    args = arguments.parser()
+    EPISODES = args.e  # Number of episodes
+    Double = args.double  # Double DQN
+    Dueling = args.dueling  # Double DQN
+
+    print("> Setting:", args)
 
     env = gym.make('BreakoutDeterministic-v4')
-    agent = Agent(action_size=3)
+
+    if Double is True:
+        if Dueling is True:
+            agent = D3QNAgent(action_size=3)
+        else:
+            agent = DDQNAgent(action_size=3)
+    if Dueling is True:  # Double is False
+        agent = DuelingAgent(action_size=3)
+    else:
+        agent = DQNAgent(action_size=3)
 
     scores, episodes, global_step = [], [], 0
     for e in range(EPISODES):

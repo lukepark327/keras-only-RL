@@ -2,42 +2,51 @@
 
 Implementating Reinforcement Learning from A to Z using keras only.
 
+<!--
 # Contents
 
 TBA
 
-# Basic
+# Atari Breakout
 
-### Q-Table
+TBA
+-->
 
-Simple RL using table as a Q-function.
+# How to run
 
-### Q-NN
+## For example: D3QN
 
-Replacing table with function approximation using Neural Network (NN). No optimization technique implemented.
+```bash
+sh atari_breakout_run.sh --double=True --dueling=True
+```
+
+## Help
+
+```bash
+sh atari_breakout_run.sh -h
+```
+```
+usage: main.py [-h] [--e E] [--double D] [--dueling B]
+
+Some hyperparameters
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --e E        Total episodes
+  --double D   Enable Double DQN
+  --dueling B  Enable Dueling DQN
+```
 
 # To the Rainbow
 
-### DQN
+| Technique | Problem | How to solve it |
+| --- | --- | --- |
+| DQN | Non-stationary targets makes learning unstable | Fixed Q-targets |
+|  | Correlation between samples makes W biased | Replay Memory |
+| Double ~ | Maximum estimator raises over-estimation | Using double estimators |
+| Dueling ~ | Some state may have inherently low value | *Q(s, a) = V(s) + A(s, a)* |
 
-Deep Q-Network.
-
-* Fixed Q-target
-* Replay Memory
-
-### DDQN
-
-Double DQN.
-
-* Using Double Estimator instead of Maximum Estimator.
-
-### D3QN
-
-Dueling Double DQN (D3QN) is the Dueling DQN with a DDQN(Double DQN) method.
-
-* Value Function
-* Advantage Function
-
+<!--
 ### NoisyNet (DQN-based) (WIP)
 
 NoisyNet replaces e-greedy heuristics with noise on weights (NoisyDense) .
@@ -51,57 +60,9 @@ TBA
 
 ### C51 (WIP)
 
-TBA
-
-<!--
 A Distributional Perspective on Reinforcement Learning (C51)
--->
 
 ### Multi-Step Learning
 
 TBA
-
-# Rainbow
-
-TBA
-
-# How to run
-
-## EX) Q-Table
-
-```bash
-sh Q-Table/run.sh
-```
-
-## Help
-
-```bash
-sh Q-Table/run.sh -h
-```
-```bash
-usage: main.py [-h] [--lr L] [--y Y] [--e E] [--r R] [--s S]
-
-Some hyperparameters
-
-optional arguments:
-  -h, --help  show this help message and exit
-  --lr L      learning rate
-  --y Y       discount factor
-  --e E       e-greedy factor
-  --r R       total episodes (rounds)
-  --s S       total steps per episode
-```
-
-# TODO
-
-- [ ] Using jupyter notebook.
-- [ ] More descriptions and references.
-- [ ] Moving TODO list into issues.
-- [ ] Combining DQN, DDQN, D3QN, NoisyNet, PER into a one file.
-- [ ] Adding an action: Stop
-- [ ] Evaluating elapsed time
-- [ ] GPU
-- [ ] requirements.txt
-- [ ] For loop in agent.learn -> Batch inferences.
-- [ ] No negative reward.
-- [ ] Renaming project: Keras Rainbow
+-->

@@ -1,66 +1,41 @@
-import keras.backend as K
-from keras.layers import Input, Dense, Conv2D, Flatten, Lambda, Add
+from keras.layers import Input, Dense, Conv2D, Flatten
 from keras.models import Model
 from keras.optimizers import RMSprop
 import numpy as np
 import random
 
-from memories import ReplayMemory
-from losses import Huber_loss
+from agents.memories import ReplayMemory
+from agents.losses import Huber_loss
 
 
-class Agent:
+class DQNAgent:
     def __init__(self, action_size):
         self.render = True
         self.load_model_dir = False
 
-        # Select methods
-        # TODO: as function parameters
-        self.Double = False
-        self.Dueling = False
-        self.PER = False
-        self.C51 = False
-        self.NoisyNet = False
-        # self.MultiStep = False  # TODO
-
         # Environment settings
         self.state_size = (84, 84, 4)
         self.action_size = action_size
-        if self.NoisyNet:
-            pass  # TODO
-        else:
-            # Epsilon
-            self.epsilon = 1.  # Current e
-            self.epsilon_start, self.epsilon_end = 1.0, 0.1
-            self.exploration_steps = 1000000.
-            self.epsilon_decay = (self.epsilon_start - self.epsilon_end) / self.exploration_steps
+
+        # Epsilon
+        self.epsilon = 1.  # Current e
+        self.epsilon_start, self.epsilon_end = 1.0, 0.1
+        self.exploration_steps = 1000000.
+        self.epsilon_decay = (self.epsilon_start - self.epsilon_end) / self.exploration_steps
 
         # Training
         self.no_op_steps = 30
         self.batch_size = 32
-        self.train_start = 50000
+        self.train_start = 1000  # 50000
         self.update_target_rate = 10000
         self.discount_factor = 0.99
-        if self.PER:
-            pass  # TODO
-            # self.memory = PrioritizedReplayMemory(400000)
-            # self.alpha = 0.6
-            # self.beta = 0.4  # Current
-            # self.beta_start, self.beta_end = 0.4, 1.0
-            # self.PER_steps = 1000000.  # TODO: hyperparameter
-            # self.beta_decay = (self.beta_end - self.beta_start) / self.PER_steps
-            # self.PER_epsilon = 10 ** -6
-        else:
-            self.memory = ReplayMemory(400000)
+        self.memory = ReplayMemory(400000)
 
         # Build model
-        # TODO: Dueling DQN
         self.optimizer = RMSprop(lr=0.00025, epsilon=0.01)
-
         self.model_for_train, self.model = self._build_model()
         _, self.target_model = self._build_model()
         self.update_target_model()
-
         if self.load_model_dir:
             # TODO: mkdir
             self.load_model("./save_model/breakout.h5")
@@ -114,7 +89,6 @@ class Agent:
     def _decaying(self):
         if self.epsilon > self.epsilon_end:
             self.epsilon -= self.epsilon_decay
-        # self.beta = min(self.beta, 1.0)
 
     def learn(self):
         if len(self.memory) < self.train_start:
@@ -137,15 +111,15 @@ class Agent:
             next_states[i] = np.float32(experience[3] / 255.)
             dones.append(experience[4])
 
-        target_values = self.target_model.predict(next_states)[0]
+        target_values = self.target_model.predict(next_states)
         targets = np.zeros((batch_size, self.action_size, ))
         for i in range(batch_size):
-            targets[i] = target_values
+            targets[i] = target_values[i]
             action = actions[i]
             if dones[i]:
                 targets[i][action] = rewards[i]
             else:
-                targets[i][action] = rewards[i] + self.discount_factor * np.amax(target_values[action])
+                targets[i][action] = rewards[i] + self.discount_factor * np.amax(target_values[i])
 
         metrics = self.model_for_train.fit(
             [states, targets],
